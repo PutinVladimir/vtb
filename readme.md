@@ -11,6 +11,10 @@ $ shasum astra1.7.zip
 
 Поменять в файле app-config строку `vrm.example.com` на адрес диспетчера подключений заказчика. Поменять строку `region.example.com` на доменное имя для авторизации.
 
+```bash
+jq '.brokers = ["vrm.example.ru"] | .user_domain = "region.example.ru"' app-config.template > app-config
+```
+
 ## Сборка контейнера
 
 `docker build --platform linux/amd64 -t astra-vdi:1.7.6 .`
@@ -22,7 +26,6 @@ $ shasum astra1.7.zip
 ## Подключаемся из Mac OS
 
 В Finder нажимаем Cmd+K и в окне Connect to Server пишем адрес `vnc://localhost`. Вводим пароль заданный при запуске параметром `-passwd`.
-
 
 ## Отбражение разрешения экрана в Windows
 
