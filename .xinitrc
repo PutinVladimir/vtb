@@ -1,0 +1,1 @@
+exec /opt/vdi-client/bin/desktop-client
