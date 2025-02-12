@@ -28,7 +28,7 @@
     "ffmpeg_close_retries": 3,
     "ffmpeg_path": "/usr/bin/ffmpeg",
     "ffmpeg_retries_sleep": 3,
-    "forward_clipboard": false,
+    "forward_clipboard": true,
     "fwd_smartcards": false,
     "get_sd_ticket_timeout": 2400,
     "integrity_check_interval": 14400,

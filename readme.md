@@ -9,7 +9,7 @@ $ shasum astra1.7.zip
 9ffdb7c184b9d3b210af93fa9857f6d9f4a1b7b3  astra1.7.zip
 ```
 
-Поменять в файле app-config строку `vrm.example.com` на адрес диспетчера подключений заказчика. Поменять строку `region.example.com` на доменное имя для авторизации.
+Поменять в файле app-config.template строку `vrm.example.com` на адрес диспетчера подключений заказчика. Поменять строку `region.example.com` на доменное имя для авторизации. И сохранить файл под именем app-config.
 
 ```bash
 jq '.brokers = ["vrm.example.ru"] | .user_domain = "region.example.ru"' app-config.template > app-config
