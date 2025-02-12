@@ -1,5 +1,8 @@
 FROM registry.astralinux.ru/library/astra/ubi17-systemd:1.7.6
 
+ENV DEBIAN_FRONTEND="noninteractive"
+ENV DISPLAY=":1"
+
 RUN apt update && \
     apt install -y x11vnc xvfb aspell aspell-en bubblewrap dictionaries-common emacsen-common \
     enchant-2 freerdp2-x11 gcc-astra-libs glib-networking glib-networking-common glib-networking-services gsettings-desktop-schemas \
@@ -35,7 +38,7 @@ RUN apt update && \
     libzvbi0 mesa-va-drivers mesa-vdpau-drivers notification-daemon python3-gpg python3-ldb \
     python3-samba python3-talloc python3-tdb qt5-gtk-platformtheme qttranslations5-l10n \
     samba-common samba-common-bin samba-dsdb-modules samba-libs ucf va-driver-all xdg-dbus-proxy zenity \
-    zenity-common unzip locales ffmpeg \
+    zenity-common unzip locales ffmpeg xserver-xorg-video-dummy net-tools \
     libccid pcscd libpcsclite1 pcsc-tools opensc libengine-pkcs11-openssl1.1 udev
 
 RUN localedef ru_RU.UTF-8 -i ru_RU -f UTF-8 && \
@@ -43,10 +46,11 @@ RUN localedef ru_RU.UTF-8 -i ru_RU -f UTF-8 && \
     update-locale && \
     ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
-COPY astra1.7.zip /tmp/vdi-client/astra1.7.zip
-COPY librtpkcs11ecp_2.17.1.0-1_amd64.deb /tmp/vdi-client/librtpkcs11ecp_2.17.1.0-1_amd64.deb
+COPY astra1.7.zip librtpkcs11ecp_2.17.1.0-1_amd64.deb /tmp/vdi-client/
 COPY app-config /root/.vdi-client/app-config
-COPY --chmod=755 .xinitrc /root/.xinitrc
+# COPY --chmod=755 .xinitrc /root/.xinitrc
+COPY xorg.conf etc/X11/xorg.conf
+COPY --chmod=755 start_xorg /usr/bin/start_xorg
 
 RUN unzip /tmp/vdi-client/astra1.7.zip -d /tmp/vdi-client && \
     tar -xzpvf /tmp/vdi-client/environment-client*.tgz -C /tmp/vdi-client/ && \
@@ -61,4 +65,4 @@ ENV LANG="ru_RU.UTF-8"
 ENV LC_ALL="ru_RU.UTF-8"
 ENV TZ="Europe/Moscow"
 
-ENTRYPOINT ["/usr/bin/x11vnc", "-create", "-forever"]
+ENTRYPOINT ["/usr/bin/start_xorg"]
