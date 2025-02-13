@@ -3,4 +3,4 @@ touch ~/.Xauthority
 /usr/bin/Xorg -noreset +extension GLX +extension RANDR +extension RENDER -auth ~/.Xauthority -config /etc/X11/xorg.conf $DISPLAY &
 xauth -f ~/.Xauthority generate $DISPLAY . trusted
 exec /opt/vdi-client/bin/desktop-client &
-/usr/bin/x11vnc -display $DISPLAY -noxdamage -env FD_XDM=1 -auth ~/.Xauthority -repeat -forever "$@"
+/usr/bin/x11vnc -display $DISPLAY -noxdamage -env FD_XDM=1 -auth ~/.Xauthority -forever "$@"
