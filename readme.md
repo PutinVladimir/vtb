@@ -15,9 +15,15 @@ $ shasum astra1.7.zip
 jq '.brokers = ["vrm.example.ru"] | .user_domain = "region.example.ru"' app-config.template > app-config
 ```
 
-## Сборка контейнера
+## Сборка контейнера xorg
 
 `docker build --platform linux/amd64 -t astra-vdi:1.7.6 .`
+
+## Сборка контейнера xvfb
+
+Контейнер с xvfb более стбильно работает но с меньшим разрешением экрана.
+
+`docker build --platform linux/amd64 -t astra-vdi:1.7.6-xvfb -f Dockerfile-xvfb .`
 
 ## Запуск
 
