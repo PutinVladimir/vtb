@@ -29,8 +29,9 @@ jq '.brokers = ["vrm.example.ru"] | .user_domain = "region.example.ru"' app-conf
 
 ## Отбражение разрешения экрана в Windows
 
-```cmd
-wmic desktopmonitor get screenheight, screenwidth
+```PowerShell
+Add-Type -Assembly System.Windows.Forms
+[Windows.Forms.SystemInformation]::VirtualScreen
 ```
 
 ## Изменение конфигурации без пересборки
