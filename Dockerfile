@@ -1,10 +1,9 @@
 FROM registry.astralinux.ru/library/astra/ubi17-systemd:1.7.6
 
 ENV DEBIAN_FRONTEND="noninteractive"
-ENV DISPLAY=":1"
 
 RUN apt update && \
-    apt install -y x11vnc xvfb aspell aspell-en bubblewrap dictionaries-common emacsen-common \
+    apt install -y aspell aspell-en bubblewrap dictionaries-common emacsen-common \
     enchant-2 freerdp2-x11 gcc-astra-libs glib-networking glib-networking-common glib-networking-services gsettings-desktop-schemas \
     gstreamer1.0-gl gstreamer1.0-libav gstreamer1.0-plugins-bad gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-x \
     hunspell-en-us i965-va-driver intel-media-va-driver iso-codes libaa1 \
@@ -38,7 +37,7 @@ RUN apt update && \
     libzvbi0 mesa-va-drivers mesa-vdpau-drivers notification-daemon python3-gpg python3-ldb \
     python3-samba python3-talloc python3-tdb qt5-gtk-platformtheme qttranslations5-l10n \
     samba-common samba-common-bin samba-dsdb-modules samba-libs ucf va-driver-all xdg-dbus-proxy zenity \
-    zenity-common unzip locales ffmpeg xserver-xorg-video-dummy net-tools \
+    zenity-common unzip locales ffmpeg xserver-xorg-video-dummy net-tools xrdp xorgxrdp \
     libccid pcscd libpcsclite1 pcsc-tools opensc libengine-pkcs11-openssl1.1 udev
 
 RUN localedef ru_RU.UTF-8 -i ru_RU -f UTF-8 && \
@@ -47,22 +46,25 @@ RUN localedef ru_RU.UTF-8 -i ru_RU -f UTF-8 && \
     ln -sf /usr/share/zoneinfo/Europe/Moscow /etc/localtime
 
 COPY astra1.7.zip librtpkcs11ecp_2.17.1.0-1_amd64.deb /tmp/vdi-client/
-COPY app-config /root/.vdi-client/app-config
-# COPY --chmod=755 .xinitrc /root/.xinitrc
-COPY xorg.conf etc/X11/xorg.conf
-COPY --chmod=755 start_xorg /usr/bin/start_xorg
+
+ENV LANG="ru_RU.UTF-8"
+ENV LC_ALL="ru_RU.UTF-8"
+ENV TZ="Europe/Moscow"
 
 RUN unzip /tmp/vdi-client/astra1.7.zip -d /tmp/vdi-client && \
     tar -xzpvf /tmp/vdi-client/environment-client*.tgz -C /tmp/vdi-client/ && \
     dpkg -i /tmp/vdi-client/environment-client-agent/*.deb && \
     dpkg -i /tmp/vdi-client/librtpkcs11ecp_2.17.1.0-1_amd64.deb && \
     dpkg -i /tmp/vdi-client/vdi-client_*.deb && \
-    rm -rf /tmp/vdi-client && apt-get clean
+    rm -rf /tmp/vdi-client
 
-EXPOSE 5900
+RUN apt autoremove -y && apt-get clean && rm -rf /var/cache/apt /var/lib/apt/lists
 
-ENV LANG="ru_RU.UTF-8"
-ENV LC_ALL="ru_RU.UTF-8"
-ENV TZ="Europe/Moscow"
+RUN useradd -m -s /bin/bash user && echo "user:user" | chpasswd
 
-ENTRYPOINT ["/usr/bin/start_xorg"]
+COPY --chmod=755 startwm.sh /etc/xrdp/startwm.sh
+COPY --chmod=755 xrdp-run /usr/bin/xrdp-run
+
+EXPOSE 3389
+
+ENTRYPOINT ["/usr/bin/xrdp-run"]
