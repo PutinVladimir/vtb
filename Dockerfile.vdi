@@ -1,0 +1,22 @@
+FROM base:1.0
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+COPY astra1.7.zip /tmp/vdi-client/
+
+RUN unzip /tmp/vdi-client/astra1.7.zip -d /tmp/vdi-client && \
+    tar -xzpvf /tmp/vdi-client/environment-client*.tgz -C /tmp/vdi-client/ && \
+    dpkg -i /tmp/vdi-client/environment-client-agent/*.deb && \
+    dpkg -i /tmp/vdi-client/vdi-client_*.deb && \
+    rm -rf /tmp/vdi-client
+
+RUN apt autoremove -y && apt-get clean && rm -rf /var/cache/apt /var/lib/apt/lists
+
+RUN useradd -m -s /bin/bash user && echo "user:user" | chpasswd
+
+COPY --chmod=755 startwm.sh /etc/xrdp/startwm.sh
+COPY --chmod=755 xrdp-run /usr/bin/xrdp-run
+
+EXPOSE 3389
+
+ENTRYPOINT ["/etc/xrdp/startwm.sh"]
