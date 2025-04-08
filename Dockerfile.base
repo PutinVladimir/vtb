@@ -55,4 +55,4 @@ RUN curl -L http://download.rutoken.ru/Rutoken/PKCS11Lib/2.17.1.0/Linux/x64/libr
 
 RUN apt autoremove -y && apt-get clean && rm -rf /var/cache/apt /var/lib/apt/lists
 
-#ENTRYPOINT ["/etc/xrdp/startwm.sh"]
+ENTRYPOINT ["/usr/bin/bash"]
