@@ -25,7 +25,7 @@ podman build --platform linux/amd64 -t vdi:1.0 -f Dockerfile.vdi .
 
 ## Create pod
 ```console
-podman pod create --name VTB -h vtb -p 3389:3389 --network host #-p 3389:3389
+podman pod create --name VTB -h vtb --network host #-p 3389:3389
 ```
 
 ## Run vpn in pod
