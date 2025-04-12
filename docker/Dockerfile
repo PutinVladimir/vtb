@@ -1,4 +1,4 @@
-FROM registry.astralinux.ru/library/astra/ubi17-systemd:latest
+FROM registry.astralinux.ru/library/astra/ubi17-systemd:latest AS astra_base
 
 ENV DEBIAN_FRONTEND="noninteractive"
 
@@ -55,3 +55,51 @@ RUN curl -L http://download.rutoken.ru/Rutoken/PKCS11Lib/2.17.1.0/Linux/x64/libr
 
 RUN apt autoremove -y && apt-get clean && rm -rf /var/cache/apt /var/lib/apt/lists
 
+# VPN
+FROM astra_base AS astra_vpn
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+RUN curl -L https://github.com/ancwrd1/snx-rs/releases/download/v3.1.1/snx-rs-v3.1.1-linux-x86_64.tar.xz -o /opt/snx-rs-v3.1.1-linux-x86_64.tar.xz && \
+    tar axf /opt/snx-rs-v3.1.1-linux-x86_64.tar.xz -C /opt/ && mv /opt/snx-rs-v3.1.1-linux-x86_64 /opt/snx-rs && rm /opt/snx-rs-*
+
+COPY --from=assets snx-rs /root/.config/snx-rs
+COPY --from=assets --chmod=755 snx-rs.sh /opt/snx-rs
+COPY --from=assets --chmod=755 start-vpn.sh /opt/start-vpn.sh
+
+## sakura install
+#RUN apt-get install -y systemd dbus
+
+WORKDIR /tmp/sakura
+COPY --from=assets sakura.deb .
+RUN dpkg-deb -R sakura.deb extracted && \
+    rm -f extracted/DEBIAN/pre* extracted/DEBIAN/post* && \
+    dpkg-deb -b extracted sakura-stripped.deb && \
+    dpkg -i sakura-stripped.deb
+
+WORKDIR /
+ENTRYPOINT ["/opt/start-vpn.sh"]
+
+# VDI
+FROM astra_base AS astra_vdi
+
+ENV DEBIAN_FRONTEND="noninteractive"
+
+COPY --from=assets astra1.7.zip /tmp/vdi-client/
+
+RUN unzip /tmp/vdi-client/astra1.7.zip -d /tmp/vdi-client && \
+    tar -xzpvf /tmp/vdi-client/environment-client*.tgz -C /tmp/vdi-client/ && \
+    dpkg -i /tmp/vdi-client/environment-client-agent/*.deb && \
+    dpkg -i /tmp/vdi-client/vdi-client_*.deb && \
+    rm -rf /tmp/vdi-client
+
+RUN apt autoremove -y && apt-get clean && rm -rf /var/cache/apt /var/lib/apt/lists
+
+RUN useradd -m -s /bin/bash user && echo "user:user" | chpasswd
+
+COPY --from=assets --chmod=755 startwm.sh /etc/xrdp/startwm.sh
+COPY --from=assets --chmod=755 xrdp-run /usr/bin/xrdp-run
+
+EXPOSE 3389
+
+ENTRYPOINT ["/etc/xrdp/startwm.sh"]

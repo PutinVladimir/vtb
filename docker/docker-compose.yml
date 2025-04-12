@@ -1,0 +1,50 @@
+
+services:
+
+  vpn:
+    build:
+      context: .
+      target: astra_vpn
+      additional_contexts:
+        assets: ../assets
+    image: astra-vpn
+    container_name: vpn
+    privileged: true
+    cap_add:
+      - ALL
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /var/run/pcscd:/var/run/pcscd
+      - /dev/bus/usb:/dev/bus/usb
+      - /tmp/.X11-unix:/tmp/.X11-unix
+#      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+#      - /etc/machine-id:/etc/machine-id
+#    tmpfs:
+#      - /run
+#      - /run/lock
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  vdi:
+    build:
+     context: .
+     target: astra_vdi
+     additional_contexts:
+      assets: ../assets
+    image: astra-vdi
+    container_name: vdi
+    network_mode: "container:vpn" #Подключаемся к сети контейнера vpn
+    privileged: true
+    cap_add:
+      - ALL
+    environment:
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /var/run/pcscd:/var/run/pcscd
+      - /dev/bus/usb:/dev/bus/usb
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    deploy:
+      restart_policy:
+        condition: on-failure
