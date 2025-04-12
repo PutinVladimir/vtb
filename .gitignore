@@ -1,1 +1,4 @@
-astra1.7.zip
+*.zip
+*.deb
+*.xz
+
