@@ -8,7 +8,7 @@
 
 ## Build base Astra image with neccessery dependencies
 ```console
-podman build --platform linux/amd64 -t base:1.0 -f Dockerfile.base .
+podman build --platform linux/amd64 -t astra-base:1.0 -f Dockerfile.base .
 ```
 
 ## Build checkpoint image
